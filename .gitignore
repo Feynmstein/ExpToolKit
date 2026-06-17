@@ -1,0 +1,46 @@
+# Claude Code
+.claude/settings.local.json
+.claude/worktrees/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+*.so
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# 实验数据（仅保留小样本用于测试）
+data/*
+!data/.gitkeep
+!data/samples/
+
+# 大数据格式
+*.hdf5
+*.h5
+*.npz
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Mypy
+.mypy_cache/
+
+# Pytest
+.pytest_cache/
+htmlcov/
+.coverage
