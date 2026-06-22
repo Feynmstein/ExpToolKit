@@ -1,4 +1,8 @@
-"""报告子包 — 根据实验数据自动生成 Markdown/HTML 报告。
+"""报告生成 — 芯片状态 HTML 报告。
+
+提供 ReportGenerator 将 ChipState 渲染为自包含 HTML 文件。
 """
 
-__all__: list[str] = []
+from exp_toolkit.report.generator import ReportGenerator
+
+__all__ = ["ReportGenerator"]

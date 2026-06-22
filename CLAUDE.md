@@ -16,7 +16,7 @@
 - 拟合引擎统一使用 `lmfit`，不混用 `scipy.optimize.curve_fit`（避免参数管理方式不一致）
 - 可视化统一使用 `matplotlib` 面向对象 API（`fig, ax = plt.subplots()`），不用 pyplot 全局状态机
 - 类型标注：公开 API 必须有完整类型标注（mypy strict 模式可检查）
-- 数据 I/O：支持 HDF5 和 NPZ 格式；CSV/Excel 仅用于人工可读的元数据表
+- 数据 I/O：原始数据以 CSV 三元组（CSV+INI+JSON）为主；HDF5/NPZ 用于处理后数据的中间存储（Future）
 
 ## 项目结构（规划中）
 
@@ -94,13 +94,24 @@ ExpToolKit/
 - 拟合模型的新增必须附带——一个对应测试用例（用已知参数的合成数据验证拟合能恢复参数）
 - 不确定的物理/领域知识标记 `TODO(DOMAIN)`，不猜测
 - Notebook 只用于探索和可视化结果，核心逻辑必须放在 `exp_toolkit` 包中（可复用、可测试）
+- 当用户说"supervisor 模式"或"你来监督"时，切换为审查者角色：不主动写实现代码，对照 `docs/requirements.md` 检查 API 一致性、边界情况、架构约束违反，推演设计决策的后果
+- 每个 Phase 完成后必须产出：`docs/designs/phase-N-design.md` + `docs/reports/phase-N-report.md` + 更新 `docs/TASK.md` + 更新本文件"当前阶段"
+- 新会话开始前必须阅读 `docs/requirements.md` 和 `docs/TASK.md`
+- 文档产出前先读 `docs/README.md` 确认命名和位置规范
 
 ## 当前阶段
 
 - [x] 需求讨论完成 → 详见 `docs/requirements.md`
-- [ ] 阶段 1：数据 IO + 基础拟合（T1/Lorentzian/DecayingSinusoid + 拟合引擎）
-- [ ] 阶段 2：芯片拓扑可视化（ChipTopology + ChipArtist）
-- [ ] 阶段 3：HTML 报告生成 + 读取保真度计算
-- [ ] 阶段 4：更多拟合模型 + 2D 拟合 + Notebook 集成
+- [x] 阶段 1：数据 IO + 基础拟合（T1/Lorentzian/DecayingSinusoid + 拟合引擎）
+- [x] 阶段 2：芯片拓扑可视化（ChipTopology + ChipArtist） + State 模块
+- [x] 阶段 3：HTML 报告生成 + 读取保真度计算
+- [x] 阶段 4：更多拟合模型（fit_ramsey/fit_rabi/fit_rb）+ experiment_types.yaml 调度 + #002 P2-2 修复
+- [x] 阶段 5：芯片拓扑增强 + State 扩展（extras）+ 报告改进
+- [x] 阶段 6：报告增强 + 多图拓扑 + Extras 可视化
+- [x] 阶段 7：chip_state.json 手动编辑支持
+- [x] 阶段 8：Drive Efficiency 修正 + 列宽/表头修复
+- [x] 阶段 9：良率数据集成 + 报告优化
+- [x] 阶段 10：Chip Yield 固定渲染 + None 态支持
+- [x] 阶段 11：Coherence 按频率分组 + DriveEntry.product 计算属性化
 
-> ⚠️ 实现前请先阅读 `docs/requirements.md`，其中包含完整的数据格式分析、API 设计草稿和约束条件。
+> ⚠️ 实现前请先阅读 `docs/requirements.md` 和 `docs/TASK.md`，前者包含完整的设计规格，后者追踪当前进度和关键决策。

@@ -1,0 +1,36 @@
+# 实验类型 → 拟合函数分发表
+# key: 实验类型标识符
+# match_keywords: INI title 中用于匹配的关键词（不区分大小写）
+# fit_func: 对应的拟合函数名
+# default_model: 默认物理模型
+# description: 简短说明
+
+T1:
+  match_keywords: ["T1", "t1"]
+  fit_func: fit_t1
+  default_model: exp_decay
+  description: "T1 弛豫时间测量"
+
+spectro:
+  match_keywords: ["spectro", "spectroscopy"]
+  fit_func: fit_spectro
+  default_model: lorentzian
+  description: "单频/双频光谱测量"
+
+ramsey:
+  match_keywords: ["ramsey", "T2*", "t2star"]
+  fit_func: fit_ramsey
+  default_model: decaying_sinusoid
+  description: "Ramsey 干涉测量（T2*）"
+
+rabi:
+  match_keywords: ["rabi"]
+  fit_func: fit_rabi
+  default_model: decaying_sinusoid
+  description: "Rabi 振荡测量"
+
+rb:
+  match_keywords: ["RB", "randomized_benchmarking", "benchmarking"]
+  fit_func: fit_rb
+  default_model: rb_exp
+  description: "随机基准测试"

@@ -546,7 +546,7 @@ def plot_spectroscopy_2d(exp: Experiment, z_slice=None) -> plt.Figure:
         {
           "pi_amp": 0.66,
           "pi_width_ns": 30,
-          "product": 19.8,
+          "product": 0.0505,
           "freq_GHz": 4.71,
           "timestamp": "2026-06-10",
           "source_exp": "00747"
@@ -574,7 +574,7 @@ def plot_spectroscopy_2d(exp: Experiment, z_slice=None) -> plt.Figure:
 
 - **f01_GHz**：存 `min`/`max`（范围），从 f01 dispersion 拟合得到
 - **T1_us / T2star_us / T2echo_us**：列表存所有历史测量值，每条记录含 `value`, `error`, `freq_GHz`（测量时比特频率）, `timestamp`, `source_exp`
-- **drive_efficiency**：存 `pi_amp × pi_width(ns)` 的乘积，标注频率
+- **drive_efficiency**：存 `1/(pi_amp × pi_width_ns)`，标注频率
 - **readout_fidelity**：存 `F0`, `F1`, `avg`，标注读取频率
 - **列表策略**：同参数多值保留全部历史；报告时按 `timestamp` 取最新值
 - **写入控制**：用户手动调用 `.add_T1()` 等方法；不自动写入
@@ -690,11 +690,11 @@ class ReportGenerator:
     
     def generate(
         self,
-        output_path: str,
-        title: str = None,
-        sections: list[str] = None,   # 可选：只包含指定节
-        colormap_param: str = "f01",  # 拓扑图默认色标参数
-    ) -> str:
+        output_path: str | Path,
+        title: str | None = None,
+        sections: list[str] | None = None,   # 可选：只包含指定节
+        topology_params: list[str] | None = None,  # 拓扑图参数列表，None 自动检测
+    ) -> Path:
         """生成自包含 HTML 文件，返回文件路径"""
 ```
 
