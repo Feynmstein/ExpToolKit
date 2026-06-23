@@ -113,5 +113,7 @@ ExpToolKit/
 - [x] 阶段 9：良率数据集成 + 报告优化
 - [x] 阶段 10：Chip Yield 固定渲染 + None 态支持
 - [x] 阶段 11：Coherence 按频率分组 + DriveEntry.product 计算属性化
+- [x] 阶段 12：生产部署与需求演进流程设计 → `docs/deployment-guide.md`
 
 > ⚠️ 实现前请先阅读 `docs/requirements.md` 和 `docs/TASK.md`，前者包含完整的设计规格，后者追踪当前进度和关键决策。
+> 生产部署相关请阅读 `docs/deployment-guide.md`。

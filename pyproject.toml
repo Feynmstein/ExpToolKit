@@ -28,6 +28,9 @@ dev = [
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = ["-v", "--tb=short"]
+markers = [
+    "regression: 真实数据回归测试（需要 tests/regression/data/ 下有数据）",
+]
 
 [tool.setuptools.packages.find]
 include = ["exp_toolkit*"]

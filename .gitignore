@@ -44,3 +44,13 @@ Thumbs.db
 .pytest_cache/
 htmlcov/
 .coverage
+
+# Regression test data (synced from experiment PC via Git LFS)
+tests/regression/data/*
+!tests/regression/data/.gitkeep
+
+# Requirements inbox/done — only keep .gitkeep, cards are content
+docs/requirements/inbox/*
+!docs/requirements/inbox/.gitkeep
+docs/requirements/done/*
+!docs/requirements/done/.gitkeep

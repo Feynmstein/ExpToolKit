@@ -1,0 +1,4 @@
+# Git LFS — 真实实验数据用于回归测试
+tests/regression/data/**/*.csv filter=lfs diff=lfs merge=lfs -text
+tests/regression/data/**/*.ini filter=lfs diff=lfs merge=lfs -text
+tests/regression/data/**/*.json filter=lfs diff=lfs merge=lfs -text
