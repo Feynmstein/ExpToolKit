@@ -1,0 +1,30 @@
+{
+  "_comment": "ExpToolKit experiment PC — diagnostic/read-only role. See docs/deployment-guide.md §5.1",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob",
+      "WebSearch",
+      "WebFetch"
+    ],
+    "deny": [
+      "Edit",
+      "Write",
+      "Bash(git push*)",
+      "Bash(pip install*)",
+      "Bash(pip uninstall*)",
+      "Bash(rm *)",
+      "Bash(del *)"
+    ],
+    "ask": [
+      "Bash(python*)",
+      "Bash(pytest*)",
+      "Bash(git status)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(cp *)",
+      "Bash(mkdir*)"
+    ]
+  }
+}

@@ -26,7 +26,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  实验电脑 (Production)                                          │
-│  - 稳定版 ExpToolKit（pip install exp-toolkit==x.y.z）          │
+│  - 稳定版 ExpToolKit（git clone --branch vX.Y.Z + pip install -e .）│
 │  - Claude Code 角色：诊断+记录，不修改源码                        │
 │  - 产生真实实验数据 + chip_state.json                            │
 │  - 禁止在此环境修改 ExpToolKit 源码                              │
@@ -414,61 +414,22 @@ print(f'T1 = {result.params[\"tau\"]:.1f} ± {result.errors[\"tau\"]:.1f}, succe
 
 ### 5.1 实验电脑（诊断角色）
 
-`.claude/settings.local.json`：
+配置文件和文档已独立维护，Setup 脚本会自动部署：
 
-```json
-{
-  "permissions": {
-    "allow": [
-      "Read",
-      "Grep",
-      "Glob",
-      "WebSearch",
-      "WebFetch"
-    ],
-    "deny": [
-      "Edit",
-      "Write",
-      "Bash(git push*)",
-      "Bash(pip install*)",
-      "Bash(rm *)",
-      "Bash(del *)"
-    ],
-    "ask": [
-      "Bash(python*)",
-      "Bash(pytest*)",
-      "Bash(git status)",
-      "Bash(git diff*)",
-      "Bash(git log*)"
-    ]
-  }
-}
-```
+| 文件 | 用途 |
+|------|------|
+| `.claude/settings.experiment-pc.json` | 实验电脑权限模板（只读 + 诊断） |
+| `docs/experiment-pc-claude.md` | CLAUDE.md 追加片段（角色 + 流程约定） |
+| `scripts/setup_experiment_pc.py` | 一键初始化脚本（自动部署上述配置） |
 
-`CLAUDE.md` 追加内容：
+**手动配置**（不使用 Setup 脚本时）：
 
-```markdown
-## 实验电脑特殊约定
+```bash
+# 1. Claude Code 权限
+cp .claude/settings.experiment-pc.json .claude/settings.local.json
 
-### 角色
-- 你是诊断助手，协助科学家分析实验数据、定位问题
-- **禁止修改 ExpToolKit 源码**（所有代码变更在开发电脑上完成）
-- **禁止 pip install / uninstall**（版本升级需人工确认）
-
-### 发现问题时的流程
-1. 用 Read/Grep 探索相关代码，理解预期行为
-2. 诊断问题根因（是数据问题还是代码 bug）
-3. 产出需求卡片：`docs/requirements/inbox/REQ-YYYY-MMDD-NNN.md`
-4. 如有不确定的物理知识，标记 `TODO(DOMAIN)`
-
-### 需求卡片格式
-见 `docs/deployment-guide.md` §4 阶段① 的模板。
-
-### 允许的操作
-- 运行 Python 分析脚本（Bash(python...)）
-- 运行测试（Bash(pytest...)）
-- 查看 git 状态/日志/diff
-- Web 搜索领域知识
+# 2. CLAUDE.md
+cat docs/experiment-pc-claude.md >> CLAUDE.md
 ```
 
 ### 5.2 开发电脑（全能力）
@@ -502,27 +463,30 @@ print(f'T1 = {result.params[\"tau\"]:.1f} ± {result.errors[\"tau\"]:.1f}, succe
 | 问题数据 | bug 复现 | 按需 | 每个 bug 1-3 个 |
 | 新实验类型样本 | 新 feature 开发 | 开发前 | 1-2 个实验 |
 
-### 6.3 Git LFS 配置
+### 6.3 Git LFS 配置与数据流转
+
+> **详细步骤**：参见 [`docs/how-to/git-lfs-workflow.md`](how-to/git-lfs-workflow.md)（从配置、筛选、传输到快照生成的完整实操指南）。
+
+**快速参考**：
 
 ```bash
-# 在开发电脑上（首次）
-git lfs track "tests/regression/data/**/*.csv"
-git lfs track "tests/regression/data/**/*.ini"
-git lfs track "tests/regression/data/**/*.json"
-git add .gitattributes
-git commit -m "chore: configure Git LFS for regression test data"
+# --- 实验电脑 ---
+# 将问题数据 / 代表性样本复制到回归测试目录
+cp -r <实验原始数据目录>/00812/ tests/regression/data/00812/
+git add tests/regression/data/00812/
+git commit -m "data: add 00812 sample for REQ-..."
+git push origin master
 
-# 实验电脑 → 开发电脑（同步特定数据）
-# 实验电脑上：
-cd /path/to/experiment/data
-git add 00812*/
-git commit -m "data: add 00812 T1 Q03 for bug REQ-001"
-git push
-
-# 开发电脑上：
-git pull
-git lfs pull
+# --- 开发电脑 ---
+git pull origin master && git lfs pull
+pytest tests/regression/ -v
 ```
+
+**数据路径约定**：
+
+- 实验原始数据：放在项目**外部**独立目录（如 `D:/ExperimentData/`），不在 git 中
+- 项目 `data/`：仅存放 git 跟踪的小样本和示例数据
+- 回归测试数据：`tests/regression/data/`（Git LFS 跟踪）
 
 ---
 
@@ -561,9 +525,13 @@ git push origin v0.2.0
 
 ```bash
 # 在实验电脑上
-pip install --upgrade exp-toolkit==0.2.0
+git pull origin master
+git checkout v0.2.0
+pip install -e .
 python scripts/smoke_test.py
 ```
+
+> 或使用一键脚本：`python scripts/setup_experiment_pc.py --yes`
 
 #### 验证
 
@@ -578,11 +546,12 @@ python scripts/smoke_test.py
 ### 回滚流程
 
 ```bash
-# 步骤 1：确认上一版本可用
-git tag -l "v*"  # 确认 tag 存在
+# 步骤 1：确认上一版本 tag 存在
+git tag -l "v*"
 
-# 步骤 2：实验电脑回滚
-pip install exp-toolkit==0.1.0  # 替换为上一稳定版本
+# 步骤 2：实验电脑回滚（切换到上一稳定版本）
+git checkout v0.1.0
+pip install -e .
 
 # 步骤 3：验证
 python scripts/smoke_test.py
@@ -608,9 +577,10 @@ print(f'T1 = {result.params[\"tau\"]:.1f} ± {result.errors[\"tau\"]:.1f}')
 
 ### 预防措施
 
-- 每次发布前确认上一个版本的 tag 存在且可 `pip install`
+- 每次发布前确认上一个版本的 tag 存在且可 checkout
 - `chip_state.json` 不原地覆盖，每次 `save()` 保留备份：`chip_state_2026-06-23.json`
-- 实验电脑上保留最近 3 个版本的 wheel：`pip download exp-toolkit==0.1.0 -d backups/`
+- 实验电脑上保留最近 3 个版本的克隆（或使用 `git worktree` 切换版本）
+- 如果发布了 PyPI 包：保留最近 3 个 wheel：`pip download exp-toolkit==0.1.0 -d backups/`
 
 ---
 
@@ -620,49 +590,73 @@ print(f'T1 = {result.params[\"tau\"]:.1f} ± {result.errors[\"tau\"]:.1f}')
 ExpToolKit/
 ├── CHANGELOG.md                          # 新增：版本变更记录
 ├── scripts/
-│   └── smoke_test.py                     # 新增：生产环境冒烟测试
+│   ├── smoke_test.py                     # 新增：生产环境冒烟测试
+│   └── setup_experiment_pc.py            # 新增：实验电脑一键初始化
 ├── tests/
 │   └── regression/                       # 新增：真实数据回归测试
 │       ├── conftest.py
 │       ├── test_snapshot.py
 │       ├── data/                         # gitignore + Git LFS
-│       │   ├── 00747/
-│       │   └── 00023/
+│       │   ├── 00812/                    # （按需同步）
+│       │   └── 00747/
 │       └── snapshots/                    # git tracked
 │           ├── 00747_T1.json
-│           └── 00023_f01.json
+│           └── 00812_T1.json
 ├── docs/
 │   ├── deployment-guide.md               # 本文件
+│   ├── experiment-pc-claude.md           # 新增：实验电脑 CLAUDE.md 片段
+│   ├── how-to/
+│   │   └── git-lfs-workflow.md           # 新增：Git LFS 实操指南
 │   └── requirements/
 │       ├── inbox/                        # 待处理需求卡片
 │       │   └── .gitkeep
 │       └── done/                         # 已闭环需求卡片
 │           └── .gitkeep
 └── .claude/
-    └── settings.local.json               # 实验电脑用：限制权限
+    ├── settings.local.json               # 开发电脑：全能力
+    └── settings.experiment-pc.json       # 新增：实验电脑模板（只读）
 ```
 
 ---
 
 ## 附录 B：首个生产部署步骤
 
-按以下顺序初始化实验电脑环境：
+### 方式一：一键初始化（推荐）
 
 ```bash
-# 1. 安装 ExpToolKit
-pip install exp-toolkit==0.1.0
+# 1. 克隆仓库（指定版本）
+git clone https://github.com/Feynmstein/ExpToolKit.git
+cd ExpToolKit
+git checkout v0.1.0
 
-# 2. 运行冒烟测试
+# 2. 运行一键 Setup
+python scripts/setup_experiment_pc.py --yes
+
+# 3. 完成 — 冒烟测试已自动运行，Claude Code 已配置为诊断角色
+```
+
+### 方式二：手动逐步配置
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/Feynmstein/ExpToolKit.git
+cd ExpToolKit
+git checkout v0.1.0
+
+# 2. 安装（可编辑模式）
+pip install -e .
+
+# 3. 运行冒烟测试
 python scripts/smoke_test.py
 
-# 3. 配置 Claude Code（实验电脑角色）
-# 将 .claude/settings.local.json 写入上述限制配置
-# 将 CLI.md 末尾追加实验电脑特殊约定
+# 4. 配置 Claude Code（实验电脑角色）
+cp .claude/settings.experiment-pc.json .claude/settings.local.json
+cat docs/experiment-pc-claude.md >> CLAUDE.md
 
-# 4. 初始化需求卡片目录
+# 5. 初始化需求卡片目录
 mkdir -p docs/requirements/inbox docs/requirements/done
 
-# 5. 首次运行：用已有数据跑一遍流程
+# 6. 首次运行：用已有数据跑一遍流程
 python -c "
 from exp_toolkit.io import load_experiment
 from exp_toolkit.fitting import fit_t1
@@ -673,7 +667,7 @@ from exp_toolkit.report import ReportGenerator
 # 加载一个已知实验
 exp = load_experiment('data/00747 - T1_ground, Q16.csv')
 result = fit_t1(exp)
-print(f'T1 = {result.params[\"tau\"]:.1f} ± {result.errors[\"tau\"]:.1f} μs')
+print(f'T1 = {result.params[\"tau\"]:.1f} ± {result.errors[\"tau\"]:.1f} us')
 
 # 初始化状态
 topo = ChipTopology.from_grid(5, 5)
@@ -685,7 +679,7 @@ state.save('chip_state.json')
 # 生成报告
 report = ReportGenerator(state, topo)
 report.generate('report.html')
-print('Done — 打开 report.html 确认')
+print('Done — open report.html to verify')
 "
 ```
 

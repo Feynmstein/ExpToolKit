@@ -6,18 +6,21 @@
 
 ```
 docs/
-├── README.md              # 本文件 — 导航索引
-├── requirements.md        # 架构级设计文档（需求+API+约束）
-├── TASK.md                # 当前进度 + 关键决策追踪
-├── deployment-guide.md    # 生产部署与需求演进流程
-├── designs/               # 各阶段设计文档（Plan 产出）
+├── README.md                   # 本文件 — 导航索引
+├── requirements.md             # 架构级设计文档（需求+API+约束）
+├── TASK.md                     # 当前进度 + 关键决策追踪
+├── deployment-guide.md         # 生产部署与需求演进流程
+├── experiment-pc-claude.md      # 实验电脑 CLAUDE.md 片段
+├── designs/                    # 各阶段设计文档（Plan 产出）
 │   └── phase-N-design.md
-├── reports/               # 各阶段完成报告（Build 结束后产出）
+├── reports/                    # 各阶段完成报告（Build 结束后产出）
 │   └── phase-N-report.md
-├── notes/                 # 实现笔记（可选，有值得记录的偏差时产出）
+├── notes/                      # 实现笔记（可选，有值得记录的偏差时产出）
 │   └── phase-N-notes.md
-└── reviews/               # 审查报告（Supervisor 产出）
-    └── NNN-phaseN-review.md
+├── reviews/                    # 审查报告（Supervisor 产出）
+│   └── NNN-phaseN-review.md
+└── how-to/                     # 操作指南
+    └── git-lfs-workflow.md     # Git LFS 数据传输实操
 ```
 
 ## 阅读顺序
@@ -26,6 +29,8 @@ docs/
 |------|------|------|
 | **新会话接手** | `requirements.md` | `TASK.md` |
 | **生产部署 / 需求流程** | `deployment-guide.md` | — |
+| **Git LFS 数据传输** | `how-to/git-lfs-workflow.md` | `.gitattributes` |
+| **实验电脑配置** | `experiment-pc-claude.md` | `.claude/settings.experiment-pc.json` |
 | **了解某个 Phase 的设计** | `designs/phase-N-design.md` | `reports/phase-N-report.md` |
 | **了解当前进度** | `TASK.md` | `CLAUDE.md` §当前阶段 |
 | **质量审查** | `reviews/` 目录（按编号从新到旧） | — |
