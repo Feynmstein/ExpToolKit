@@ -98,13 +98,20 @@ def step_create_directories(*, yes: bool) -> bool:
 
 
 def step_install_package(*, yes: bool) -> bool:
-    """Install exp_toolkit in editable mode."""
-    print("\n--- Step 2/5: Install exp_toolkit (editable) ---")
-    if not _confirm("pip install -e . (editable install)?", yes=yes):
+    """Install exp_toolkit (non-editable — copies to site-packages).
+
+    Uses regular ``pip install .`` (NOT ``-e``) to decouple the installed
+    package from the source tree.  This enforces the environment separation
+    principle: code changes on the experiment PC require a deliberate
+    ``git checkout <version> && pip install .`` cycle, not just editing a
+    file in the repo.
+    """
+    print("\n--- Step 2/5: Install exp_toolkit ---")
+    if not _confirm("pip install . (copy to site-packages)?", yes=yes):
         print("  [SKIP] Package installation skipped — smoke test may fail.")
         return True
-    return _run([sys.executable, "-m", "pip", "install", "-e", "."],
-                "pip install -e .")
+    return _run([sys.executable, "-m", "pip", "install", "."],
+                "pip install .")
 
 
 def step_configure_claude_settings(*, yes: bool) -> bool:

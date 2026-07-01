@@ -26,7 +26,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  实验电脑 (Production)                                          │
-│  - 稳定版 ExpToolKit（git clone --branch vX.Y.Z + pip install -e .）│
+│  - 稳定版 ExpToolKit（git clone --branch vX.Y.Z + pip install .）│
 │  - Claude Code 角色：诊断+记录，不修改源码                        │
 │  - 产生真实实验数据 + chip_state.json                            │
 │  - 禁止在此环境修改 ExpToolKit 源码                              │
@@ -527,7 +527,7 @@ git push origin v0.2.0
 # 在实验电脑上
 git pull origin master
 git checkout v0.2.0
-pip install -e .
+pip install .
 python scripts/smoke_test.py
 ```
 
@@ -551,7 +551,7 @@ git tag -l "v*"
 
 # 步骤 2：实验电脑回滚（切换到上一稳定版本）
 git checkout v0.1.0
-pip install -e .
+pip install .
 
 # 步骤 3：验证
 python scripts/smoke_test.py
@@ -643,8 +643,8 @@ git clone https://github.com/Feynmstein/ExpToolKit.git
 cd ExpToolKit
 git checkout v0.1.0
 
-# 2. 安装（可编辑模式）
-pip install -e .
+# 2. 安装（复制到 site-packages，与源码解耦）
+pip install .
 
 # 3. 运行冒烟测试
 python scripts/smoke_test.py
